@@ -598,4 +598,9 @@ public class OneWireContainer3A
    {
    }
 
+	 @Override
+	public void readDevice(byte[] outputBuffer) throws OneWireIOException, OneWireException {
+	// read the status byte
+  }  
+
 }
