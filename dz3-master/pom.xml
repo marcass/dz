@@ -41,15 +41,16 @@
         <module>dz3-scheduler-gcal-v3</module>
         <module>dz3-http</module>
         <module>dz3-connector</module>
+<!--        <module>dz3-xbee</module> -->
         <module>dz3-modelhome</module>
     </modules>
     <scm>
         <connection>scm:svn:https://diy-zoning.svn.sourceforge.net/svnroot/diy-zoning</connection>
         <developerConnection>scm:svn:https://diy-zoning.svn.sourceforge.net/svnroot/diy-zoning</developerConnection>
-        <url>http://diy-zoning.svn.sourceforge.net/viewvc/diy-zoning/</url>
+        <url>https://github.com/home-climate-control/dz</url>
     </scm>
     <issueManagement>
-        <url>http://sourceforge.net/tracker/?group_id=52647</url>
+        <url>https://github.com/home-climate-control/dz/issues</url>
     </issueManagement>
     <repositories>
         <repository>
@@ -88,7 +89,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>3.8.1</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -166,6 +167,35 @@
             </plugin>
         </plugins>
     </build>
+    <reporting>
+    <plugins>
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>findbugs-maven-plugin</artifactId>
+            <version>3.0.1</version>
+            <configuration>
+                <effort>Max</effort>
+                <threshold>Low</threshold>
+                <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+            </configuration>
+        </plugin>
+        <plugin>
+            <!-- use mvn cobertura:cobertura to generate cobertura reports -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>cobertura-maven-plugin</artifactId>
+            <version>2.6</version>
+            <configuration>
+                <formats>
+                    <format>html</format>
+                    <format>xml</format>
+                </formats>
+                <instrumentation>
+                    <ignoreTrivial>true</ignoreTrivial>
+                </instrumentation>
+            </configuration>
+        </plugin>
+    </plugins>
+    </reporting>
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>

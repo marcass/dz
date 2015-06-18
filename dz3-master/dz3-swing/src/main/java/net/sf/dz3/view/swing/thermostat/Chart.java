@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -258,6 +259,7 @@ public class Chart extends JPanel implements DataSink<TintedValue> {
         g2d.setStroke(gridStroke);
 
         double valueOffset = 0;
+        double halfWidth = ((double) (boundary.width - insets.right - 1)) / 2d;
 
         for (valueOffset = valueSpacing; valueOffset < dataMax + padding; valueOffset += valueSpacing) {
 
@@ -268,11 +270,11 @@ public class Chart extends JPanel implements DataSink<TintedValue> {
 
             drawGradientLine(g2d,
                     insets.left, gridY,
-                    (boundary.width - insets.right - 1) / 2, gridY,
+                    halfWidth, gridY,
                     Color.GRAY.darker().darker(), getBackground());
 
             drawGradientLine(g2d,
-                    (boundary.width - insets.right - 1) / 2, gridY,
+                    halfWidth, gridY,
                     boundary.width - insets.right - 1, gridY,
                     getBackground(), Color.GRAY.darker().darker());
         }
@@ -286,11 +288,11 @@ public class Chart extends JPanel implements DataSink<TintedValue> {
 
             drawGradientLine(g2d,
                     insets.left, gridY,
-                    (boundary.width - insets.right - 1) / 2, gridY,
+                    halfWidth, gridY,
                     getBackground(), Color.GRAY.darker().darker());
 
             drawGradientLine(g2d,
-                    (boundary.width - insets.right - 1) / 2, gridY,
+                    halfWidth, gridY,
                     boundary.width - insets.right - 1, gridY,
                     getBackground(), Color.GRAY.darker().darker());
         }
@@ -302,12 +304,13 @@ public class Chart extends JPanel implements DataSink<TintedValue> {
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        for (Iterator<String> i = channel2ds.keySet().iterator(); i.hasNext(); ) {
+        for (Iterator<Entry<String, DataSet<TintedValue>>> i = channel2ds.entrySet().iterator(); i.hasNext(); ) {
 
             // VT: FIXME: Implement depth ordering
 
-            String channel = i.next();
-            DataSet<TintedValue> ds = channel2ds.get(channel);
+            Entry<String, DataSet<TintedValue>> entry = i.next();
+            String channel = entry.getKey();
+            DataSet<TintedValue> ds = entry.getValue();
 
             paintChart(g2d, boundary, insets, now, x_scale, x_offset, y_scale, y_offset, channel, ds);
         }
@@ -468,10 +471,10 @@ public class Chart extends JPanel implements DataSink<TintedValue> {
         double valueAccumulator = 0;
         double tintAccumulator = 0;
 
-        for (Iterator<Long> i = buffer.keySet().iterator(); i.hasNext(); ) {
+        for (Iterator<Entry<Long, TintedValue>> i = buffer.entrySet().iterator(); i.hasNext(); ) {
 
-            Long timestamp = i.next();
-            TintedValue signal = buffer.get(timestamp);
+            Entry<Long, TintedValue> entry = i.next();
+            TintedValue signal = entry.getValue();
 
             valueAccumulator += signal.value;
             tintAccumulator += signal.tint;

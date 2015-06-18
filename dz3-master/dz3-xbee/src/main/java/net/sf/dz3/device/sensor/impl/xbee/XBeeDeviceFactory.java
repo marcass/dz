@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -16,6 +17,7 @@ import net.sf.dz3.device.sensor.SensorType;
 import net.sf.dz3.device.sensor.Switch;
 import net.sf.dz3.device.sensor.impl.ContainerMap;
 import net.sf.dz3.device.sensor.impl.StringChannelAddress;
+import net.sf.dz3.instrumentation.Marker;
 import net.sf.jukebox.datastream.signal.model.DataSink;
 import net.sf.jukebox.jmx.JmxAttribute;
 import net.sf.jukebox.jmx.JmxAware;
@@ -247,7 +249,7 @@ public class XBeeDeviceFactory extends AbstractDeviceFactory<XBeeDeviceContainer
     
     private void AP2(XBee target) throws XBeeTimeoutException, XBeeException, IOException {
         
-        XBeeResponse rsp = target.sendSynchronous(new AtCommand("AP", 2), 5000);
+        XBeeResponse rsp = target.sendSynchronous(new AtCommand("AP", 2), XBeeConstants.TIMEOUT_AP_MILLIS);
         
         if (rsp.isError()) {
             throw new IOException("Can't set AP=2, response: " + rsp);
@@ -264,11 +266,12 @@ public class XBeeDeviceFactory extends AbstractDeviceFactory<XBeeDeviceContainer
     private void browse(XBee target) throws XBeeException {
         
         NDC.push("browse");
+        Marker m = new Marker("browse");
         
         try {
 
             // get the Node discovery timeout
-            AtCommandResponse nodeTimeout = (AtCommandResponse) target.sendSynchronous(new AtCommand("NT"), 1000);
+            AtCommandResponse nodeTimeout = (AtCommandResponse) target.sendSynchronous(new AtCommand("NT"), XBeeConstants.TIMEOUT_NT_MILLIS);
 
             // default is 6 seconds
             long nodeDiscoveryTimeout = ByteUtils.convertMultiByteToInt(nodeTimeout.getValue()) * 100;
@@ -285,11 +288,17 @@ public class XBeeDeviceFactory extends AbstractDeviceFactory<XBeeDeviceContainer
             
             listFound();
             
+        } catch (XBeeTimeoutException ex) {
+            
+            logger.error("Load too high or timeout too short?", ex);
+            
         } catch (InterruptedException ex) {
             
             logger.error("Huh? Interrupted?", ex);
                 
         } finally {
+            
+            m.close();
             NDC.pop();
         }
     }
@@ -359,10 +368,11 @@ public class XBeeDeviceFactory extends AbstractDeviceFactory<XBeeDeviceContainer
             
             long now = System.currentTimeMillis();
             
-            for (Iterator<String> i = lastSeen.keySet().iterator(); i.hasNext(); ) {
+            for (Iterator<Entry<String, Long>> i = lastSeen.entrySet().iterator(); i.hasNext(); ) {
                 
-                String address = i.next();
-                long age = now - lastSeen.get(address);
+                Entry<String, Long> entry = i.next();
+                String address = entry.getKey();
+                long age = now - entry.getValue();
                 
                 if (age > staleAgeMillis) {
                     
@@ -548,7 +558,7 @@ public class XBeeDeviceFactory extends AbstractDeviceFactory<XBeeDeviceContainer
         }
     }
 
-    private class XBeeSingleSwitchProxy extends SingleSwitchProxy<XBeeSwitch> {
+    private static class XBeeSingleSwitchProxy extends SingleSwitchProxy<XBeeSwitch> {
         
         public XBeeSingleSwitchProxy(ContainerMap address2dcGlobal, StringChannelAddress address) {
             

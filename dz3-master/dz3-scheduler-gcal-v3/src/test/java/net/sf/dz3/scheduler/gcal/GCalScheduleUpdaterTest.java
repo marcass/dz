@@ -61,6 +61,12 @@ public class GCalScheduleUpdaterTest extends TestCase {
 
     public void testYesterday() {
         
+        // VT: NOTE: This test will try to spawn the system browser, or pring a link you need to visit to get the callback.
+        // You will need to visit the link on the same box, the callback URL is pointing to 'localhost'.
+        // Make sure you have a browser that can deal with the page (Lynx, as of 2.8.8dev.12, can't deal with the buttons on the callback page.
+        
+        // In the worst case, just @Ignore this test. 
+        
         NDC.push("testYesterday");
         Marker m = new Marker("testYesterday");
         
@@ -144,10 +150,8 @@ public class GCalScheduleUpdaterTest extends TestCase {
         
         logger.debug("String to parse: " + startString);
         
-        @SuppressWarnings("unused")
-        DateTime dtStart = DateTime.parseRfc3339(startString);
-        @SuppressWarnings("unused")
-        DateTime dtEnd = DateTime.parseRfc3339(endString);
+        DateTime.parseRfc3339(startString);
+        DateTime.parseRfc3339(endString);
         
         logger.debug("Parsed OK");
         
@@ -162,7 +166,7 @@ public class GCalScheduleUpdaterTest extends TestCase {
         }
     }
 
-    private class NullThermostat implements Thermostat {
+    private static class NullThermostat implements Thermostat {
 
         private final String name;
         

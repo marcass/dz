@@ -79,9 +79,17 @@ public class ZoneStatusImpl implements ZoneStatus, Serializable {
         
         ZoneStatus otherStatus = (ZoneStatus) other;
         
-        return (getSetpoint() == otherStatus.getSetpoint())
+        return (Double.compare(getSetpoint(), otherStatus.getSetpoint()) == 0)
             && (getDumpPriority() == otherStatus.getDumpPriority())
             && (isOn() == otherStatus.isOn())
             && (isVoting() == otherStatus.isVoting());
+    }
+    
+    @Override
+    public int hashCode() {
+        
+        StringBuilder sb = new StringBuilder();
+        
+        return sb.append(setpoint).append(enabled).append(voting).append(dumpPriority).toString().hashCode();
     }
 }
